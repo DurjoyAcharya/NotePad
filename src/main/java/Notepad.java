@@ -3,14 +3,19 @@
 
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.print.PrinterException;
+import java.io.*;
+import java.util.Hashtable;
 
 public class Notepad extends JFrame implements ActionListener{
     private JTextArea area;
     private JScrollPane pane;
+    private String text;
     public Notepad()
     {
         setBounds(0,0,1200,800);
@@ -37,6 +42,7 @@ public class Notepad extends JFrame implements ActionListener{
         newExit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,0));
         newExit.addActionListener(this);
         file.add(newDoc);
+        file.add(newOpen);
         file.add(newSave);
         file.add(newSaveAs);
         file.add(newPrint);
@@ -94,6 +100,97 @@ public class Notepad extends JFrame implements ActionListener{
     }
     @Override
     public void actionPerformed(ActionEvent e) {
+            if(e.getActionCommand().equals("New"))
+            {
+                area.setText("");
+            }
+            else if(e.getActionCommand().equals("Open"))
+             {
+                 var select=new JFileChooser();
+                select.setAcceptAllFileFilterUsed(false);
+                 var restrict=new FileNameExtensionFilter("Text Only","txt");
+                 select.addChoosableFileFilter(restrict);
+                 int action=select.showOpenDialog(this);
+                 if (action!=JFileChooser.APPROVE_OPTION)
+                     return;
+                 var file=select.getSelectedFile();
+                 try
+                 {
+                     var reader=new BufferedReader(new FileReader(file));
+                     area.read(reader,null);
+                 } catch (FileNotFoundException fileNotFoundException) {
+                     fileNotFoundException.printStackTrace();
+                 } catch (IOException ioException) {
+                     ioException.printStackTrace();
+                 }
+             }
+            else if(e.getActionCommand().equals("Save"))
+            {
+                var save=new JFileChooser();
+                save.setApproveButtonText("Save");
+                var action=save.showSaveDialog(this);
+                if (action !=JFileChooser.APPROVE_OPTION)
+                    return;
+                var file=new File(save.getSelectedFile()+".txt");
+                BufferedWriter output=null;
+                try
+                {
+                    output=new BufferedWriter(new FileWriter(file));
+                    area.write(output);
+                }catch (IOException F)
+                {
+                    F.printStackTrace();
+                }
+
+            }else if(e.getActionCommand().equals("Save As"))
+            {
+                var saveas=new JFileChooser();
+                saveas.setApproveButtonText("Save");
+                var action=saveas.showSaveDialog(this);
+                if (action !=JFileChooser.APPROVE_OPTION)
+                    return;
+                var file=new File(saveas.getSelectedFile()+"copy"+".txt");
+                BufferedWriter output=null;
+                try
+                {
+                    output=new BufferedWriter(new FileWriter(file));
+                    area.write(output);
+                }catch (IOException F)
+                {
+                    F.printStackTrace();
+                }
+
+            }else if(e.getActionCommand().equals("Print"))
+            {
+                try {
+                    area.print();
+                } catch (PrinterException printerException) {
+                    printerException.printStackTrace();
+                }
+            }else if(e.getActionCommand().equals("Exit"))
+            {
+                System.exit(0);
+            }
+            else if (e.getActionCommand().equals("Copy"))
+            {
+                text=area.getSelectedText();
+            } else if (e.getActionCommand().equals("Cut"))
+            {
+                text=area.getSelectedText();
+                if (!text.equals(""))
+                {
+                   // area
+                }
+
+            }else if (e.getActionCommand().equals("Paste"))
+            {
+                area.insert(text,area.getCaretPosition());
+            }else if (e.getActionCommand().equals("Time/Date"))
+            {
+
+            }
+
 
     }
+
 }
